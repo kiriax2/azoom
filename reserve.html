@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reserve a Car - AZoom</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    #message {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    #message.error {
+      color: red;
+    }
+    #message.success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="icon">🚗 AZoom Car Rental</h1>
+    <h1>Reserve a Car</h1>
+  </header>
+
+  <main>
+    <form id="reserveForm">
+      <label>Name:</label>
+      <input type="text" id="name" required>
+
+      <label>Email:</label>
+      <input type="email" id="email" required>
+
+      <label>Select Car:</label>
+      <select id="carSelect"></select>
+
+      <label>Start Date:</label>
+      <input type="date" id="startDate" required>
+
+      <label>End Date:</label>
+      <input type="date" id="endDate" required>
+
+      <label>Credit Card:</label>
+      <input type="text" id="card" maxlength="16" placeholder="1234567890123456" required>
+
+      <button type="submit" class="btn">Reserve</button>
+    </form>
+
+    <p id="message"></p>
+  </main>
+
+  <script>
+    const carSelect = document.getElementById("carSelect");
+    const msg = document.getElementById("message");
+    const form = document.getElementById("reserveForm");
+    const startInput = document.getElementById("startDate");
+    const endInput = document.getElementById("endDate");
+
+    // --- Car list ---
+    const cars = [
+      { id: 1, name: "Ford Mustang GT" },
+      { id: 2, name: "Tesla Model 3" },
+      { id: 3, name: "Honda Civic" },
+      { id: 4, name: "Mercedes AMG" },
+      { id: 5, name: "BMW Series 3" },
+      { id: 6, name: "Toyota Corolla" },
+      { id: 7, name: "Porsche 911" }
+    ];
+
+    // --- Load existing reservations ---
+    let reservations = JSON.parse(localStorage.getItem("reservations")) || [];
+
+    // --- Populate dropdown ---
+    cars.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.name;
+      carSelect.appendChild(opt);
+    });
+
+    // --- Pre-select car from URL ---
+    const params = new URLSearchParams(window.location.search);
+    const selectedCarId = params.get("car");
+    if (selectedCarId) carSelect.value = selectedCarId;
+
+    // --- Set minimum start date to today ---
+    const today = new Date().toISOString().split("T")[0];
+    startInput.min = today;
+
+    // --- When start date changes, end date must be after it ---
+    startInput.addEventListener("change", () => {
+      endInput.min = startInput.value;
+    });
+
+    // --- Handle reservation submit ---
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+
+      msg.textContent = "";
+      msg.className = "";
+
+      const loggedUser = localStorage.getItem("username");
+      if (!loggedUser) {
+        msg.textContent = "❌ Please log in before reserving a car.";
+        msg.className = "error";
+        return;
+      }
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const carId = parseInt(carSelect.value);
+      const start = new Date(startInput.value);
+      const end = new Date(endInput.value);
+      const card = document.getElementById("card").value.trim();
+
+      // --- Validation checks ---
+      if (card.length !== 16 || isNaN(card)) {
+        msg.textContent = "❌ Invalid credit card number.";
+        msg.className = "error";
+        return;
+      }
+
+      if (start < new Date(today)) {
+        msg.textContent = "❌ Start date cannot be in the past.";
+        msg.className = "error";
+        return;
+      }
+
+      if (end <= start) {
+        msg.textContent = "❌ End date must be after start date.";
+        msg.className = "error";
+        return;
+      }
+
+      const newRes = {
+        id: reservations.length + 1,
+        username: loggedUser,
+        name,
+        email,
+        carId,
+        startDate: start.toISOString().split("T")[0],
+        endDate: end.toISOString().split("T")[0],
+        status: "rented"
+      };
+
+      reservations.push(newRes);
+      localStorage.setItem("reservations", JSON.stringify(reservations));
+
+      msg.textContent = `✅ Reservation successful for ${cars.find(c => c.id === carId).name}!`;
+      msg.className = "success";
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>

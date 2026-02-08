@@ -1,0 +1,91 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f9fafc;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #0078ff;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+nav a {
+  color: white;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+main {
+  padding: 2rem;
+}
+
+form, main label, main input, main select {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background: #0078ff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn:hover {
+  background: #005ec2;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem;
+  background: linear-gradient(120deg, #0078ff, #00c6ff);
+  color: white;
+}
+
+footer {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;        /* vertically aligned */
+  justify-content: space-between; 
+  padding: 16px;
+}
+
+
+
+
+.box {
+  height: 200px;
+  margin: 50px 0;
+  background: lightblue;
+  transition: all 0.6s ease;
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+div.car img{
+
+  width: 150px;
+  height: 120px;
+}

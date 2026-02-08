@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AZoom Car Rental</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* --- BASIC LAYOUT --- */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fafc;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header.topbar {
+      background: #0078ff;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+
+    h1.icon {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    #welcomeUser {
+      font-size: 1rem;
+      color: yellow;
+      margin-left: 10px;
+    }
+
+    nav a, nav button {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: bold;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    nav button:hover, nav a:hover {
+      text-decoration: underline;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem;
+      background: linear-gradient(120deg, #0078ff, #00c6ff);
+      color: white;
+    }
+
+    .hero .btn {
+      background: #fff;
+      color: #0078ff;
+      padding: 0.7rem 1.2rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .hero .btn:hover {
+      background: #e6e6e6;
+    }
+
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    /* --- LOGIN MODAL --- */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 300px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 0 10px #333;
+    }
+
+    .modal-content input {
+      width: 90%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn {
+      background: #0078ff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #005ec2;
+    }
+
+    .cancel {
+      background: #999;
+    }
+
+    .cancel:hover {
+      background: #777;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🔝 Header -->
+  <header class="topbar">
+    <h1 class="icon">🚗 AZoom Car Rental <span id="welcomeUser"></span></h1>
+
+    <nav id="navbar">
+      <a href="index.html">Home</a>
+      <a href="rental.html">Rent</a>
+      <a href="return.html">Return</a>
+      <a href="register.html">Register</a>
+      <button id="loginBtn">Login</button>
+    </nav>
+  </header>
+
+  <!-- 🔒 Login Popup -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <label>Username:</label><br>
+        <input type="text" id="username" required><br>
+
+        <label>Password:</label><br>
+        <input type="password" id="password" required><br>
+
+        <button type="submit" class="btn">Login</button>
+        <button type="button" id="closeLogin" class="btn cancel">Cancel</button>
+      </form>
+      <p id="loginMsg"></p>
+    </div>
+  </div>
+
+  <!-- 🌟 Hero Section -->
+  <main>
+    <section class="hero">
+      <img src="aa.webp">
+      <h2>Fast, Reliable, Affordable Car Rentals</h2>
+      <p>Reserve your car online in minutes and hit the road with ease.</p>
+      <a href="rental.html" class="btn">Rent a Car</a>
+    </section>
+  </main>
+
+  <!-- ⚙️ Script -->
+  <script>
+    // --- Elements ---
+    const loginBtn = document.getElementById("loginBtn");
+    const loginModal = document.getElementById("loginModal");
+    const closeLogin = document.getElementById("closeLogin");
+    const loginForm = document.getElementById("loginForm");
+    const welcomeUser = document.getElementById("welcomeUser");
+
+    // --- Ensure employee account exists ---
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    if (!users.find(u => u.username === "employee")) {
+      users.push({ username: "employee", password: "admin@123", role: "employee" });
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    // --- Update Navbar ---
+    function updateNavbar() {
+      const isLoggedIn = localStorage.getItem("loggedIn") === "true";
+      const username = localStorage.getItem("username");
+
+      if (isLoggedIn && username) {
+        welcomeUser.textContent = `Welcome, ${username}!`;
+        loginBtn.textContent = "Logout";
+      } else {
+        welcomeUser.textContent = "";
+        loginBtn.textContent = "Login";
+      }
+    }
+
+    // --- Open Login Popup ---
+    loginBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isLoggedIn = localStorage.getItem("loggedIn") === "true";
+      if (isLoggedIn) {
+        logoutUser();
+      } else {
+        loginModal.style.display = "block";
+      }
+    });
+
+    // --- Close Modal ---
+    closeLogin.addEventListener("click", () => loginModal.style.display = "none");
+    window.addEventListener("click", (e) => {
+      if (e.target === loginModal) loginModal.style.display = "none";
+    });
+
+    // --- Handle Login ---
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const foundUser = users.find(u => u.username === username && u.password === password);
+
+      if (foundUser) {
+        localStorage.setItem("loggedIn", "true");
+        localStorage.setItem("username", username);
+        localStorage.setItem("role", foundUser.role || "customer");
+
+        loginModal.style.display = "none";
+        updateNavbar();
+
+        if (foundUser.role === "employee") {
+          alert("👔 Logged in as employee! Redirecting to dashboard...");
+          window.location.href = "employee.html";
+        } else {
+          alert("✅ Login successful!");
+        }
+      } else {
+        alert("❌ Invalid username or password!");
+      }
+    });
+
+    // --- Logout ---
+    function logoutUser() {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      updateNavbar();
+    }
+
+    // --- Initialize Navbar on Page Load ---
+    updateNavbar();
+  </script>
+
+  <!-- 🔻 Footer -->
+  <footer>
+    <p>© 2026 AZoom Car Rental. All Rights Reserved.</p>
+  </footer>
+</body>
+</html>

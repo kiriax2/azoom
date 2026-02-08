@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Dashboard - AZoom</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .logout-btn {
+      background: #ff4747;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .logout-btn:hover {
+      background: #d63b3b;
+    }
+
+    .car {
+      display: inline-block;
+      margin: 20px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      width: 260px;
+    }
+
+    .car img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .car h3 {
+      margin: 10px 0;
+      color: #0078ff;
+    }
+
+    .car button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🔝 Header -->
+  <header class="topbar">
+    <h1 class="icon">🚗 AZoom Employee Dashboard</h1>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </header>
+
+  <main id="inspectionSection">
+    <h3>Returned Cars Awaiting Inspection</h3>
+  </main>
+
+  <script>
+    // --- Logout Function ---
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      window.location.href = "index.html";
+    });
+
+    // --- Access Control ---
+    const role = localStorage.getItem("role");
+    if (role !== "employee") {
+      document.body.innerHTML = "<h3>❌ Access Denied. Employee login required.</h3>";
+      throw new Error("Unauthorized");
+    }
+
+    // --- Car Data ---
+    const cars = [
+      { id: 1, name: "Ford Mustang GT", rate: 50, img: "fordmustanggt.jpg" },
+      { id: 2, name: "Tesla Model 3", rate: 80, img: "2019tesla.jpg" },
+      { id: 3, name: "Honda Civic", rate: 40, img: "hondacivic.webp" },
+      { id: 4, name: "Mercedes AMG", rate: 100, img: "Mercedes_C300D_0000.jpg" },
+      { id: 5, name: "BMW Series 3", rate: 90, img: "2025-bmw-3-series-102-66562dcd6a1c6.avif" },
+      { id: 6, name: "Toyota Corolla", rate: 35, img: "toyota_corolla-altis_brochure_1k0_720x430px.png" },
+      { id: 7, name: "Porsche 911", rate: 150, img: "PCGB25_0177_fine-1920x960.jpg" }
+    ];
+
+    // --- Load Reservations ---
+    const loggedUser = localStorage.getItem("username");
+    const allReservations = JSON.parse(localStorage.getItem("reservations")) || [];
+    const returned = allReservations.filter(r => r.status === "returned");
+
+    const section = document.getElementById("inspectionSection");
+
+    if (returned.length === 0) {
+      section.innerHTML += "<p>No cars awaiting inspection.</p>";
+    } else {
+      returned.forEach(r => {
+        const car = cars.find(c => c.id === r.carId);
+        const div = document.createElement("div");
+        div.classList.add("car");
+        div.innerHTML = `
+          <img src="${car.img}" alt="${car.name}">
+          <h3>${car.name}</h3>
+          <p>Rented by: ${r.username}</p>
+          <p>Rental Period: ${r.startDate} → ${r.endDate}</p>
+          <button onclick="markInspection(${r.id}, false)">✅ No Damage</button>
+          <button onclick="markInspection(${r.id}, true)">❌ Damaged</button>
+        `;
+        section.appendChild(div);
+      });
+    }
+
+    // --- Inspection Logic ---
+    function markInspection(id, damaged) {
+      const all = JSON.parse(localStorage.getItem("reservations")) || [];
+      const found = all.find(r => r.id === id);
+
+      if (found) {
+        const car = cars.find(c => c.id === found.carId);
+        const days = Math.ceil((new Date(found.endDate) - new Date(found.startDate)) / (1000 * 60 * 60 * 24));
+        let total = car.rate * days;
+        if (damaged) total += 200;
+
+        found.status = "completed";
+        found.finalBill = total;
+        found.damage = damaged;
+
+        localStorage.setItem("reservations", JSON.stringify(all));
+
+        alert(
+          `Inspection Completed ✅\nCar: ${car.name}\nUser: ${found.username}\nDamage: ${damaged ? "Yes (+$200)" : "No"}\nFinal Bill: $${total}`
+        );
+
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

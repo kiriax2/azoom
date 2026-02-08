@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Pickup - AZoom</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="icon"><a href="index.html">🚗 AZoom Car Rental</a></h1>
+    <h1>Car Pickup</h1>
+  </header>
+
+  <main>
+    <h3>Available Cars</h3>
+
+    <div class="car">
+      <img src="fordmustanggt.jpg" width="250">
+      <h3>Ford Mustang GT</h3>
+      <p>$50/Daily</p>
+      <button onclick="reserveCar(1)">Rent Now!</button>
+    </div>
+
+    <div class="car">
+      <img src="2019tesla.jpg" width="250">
+      <h3>Tesla Model 3</h3>
+      <p>$80/Daily</p>
+      <button onclick="reserveCar(2)">Rent Now!</button>
+    </div>
+
+    <div class="car">
+      <img src="hondacivic.webp" width="250">
+      <h3>Honda Civic</h3>
+      <p>$40/Daily</p>
+      <button onclick="reserveCar(3)">Rent Now!</button>
+    </div>
+
+    <div class="car">
+      <img src="Mercedes_C300D_0000.jpg" width="250">
+      <h3>Mercedes AMG</h3>
+      <p>$100/Daily</p>
+      <button onclick="reserveCar(4)">Rent Now!</button>
+    </div>
+
+    <div class="car">
+      <img src="2025-bmw-3-series-102-66562dcd6a1c6.avif" width="250">
+      <h3>BMW Series 3</h3>
+      <p>$90/Daily</p>
+      <button onclick="reserveCar(5)">Rent Now!</button>
+    </div>
+
+    <div class="car">
+      <img src="toyota_corolla-altis_brochure_1k0_720x430px.png" width="250">
+      <h3>Toyota Corolla</h3>
+      <p>$35/Daily</p>
+      <button onclick="reserveCar(6)">Rent Now!</button>
+    </div>
+
+    <div class="car">
+      <img src="PCGB25_0177_fine-1920x960.jpg" width="250">
+      <h3>Porsche 911</h3>
+      <p>$150/Daily</p>
+      <button onclick="reserveCar(7)">Rent Now!</button>
+    </div>
+
+    <script>
+      function reserveCar(carId) {
+        const isLoggedIn = localStorage.getItem("loggedIn");
+        if (isLoggedIn === "true") {
+          window.location.href = `reserve.html?car=${carId}`;
+        } else {
+          alert("Please log in to rent a car");
+        }
+      }
+    </script>
+  </main>
+</body>
+</html>

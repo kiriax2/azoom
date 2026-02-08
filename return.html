@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Return Car - AZoom</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="icon"><a href="index.html">🚗 AZoom Car Rental</a></h1>
+    <h1>Return Your Car</h1>
+  </header>
+
+  <main id="returnSection">
+    <h3>Your Rented Cars</h3>
+  </main>
+
+  <script>
+    // --- List of Cars (same as rental.html) ---
+    const cars = [
+      { id: 1, name: "Ford Mustang GT", img: "fordmustanggt.jpg" },
+      { id: 2, name: "Tesla Model 3", img: "2019tesla.jpg" },
+      { id: 3, name: "Honda Civic", img: "hondacivic.webp" },
+      { id: 4, name: "Mercedes AMG", img: "Mercedes_C300D_0000.jpg" },
+      { id: 5, name: "BMW Series 3", img: "2025-bmw-3-series-102-66562dcd6a1c6.avif" },
+      { id: 6, name: "Toyota Corolla", img: "toyota_corolla-altis_brochure_1k0_720x430px.png" },
+      { id: 7, name: "Porsche 911", img: "PCGB25_0177_fine-1920x960.jpg" }
+    ];
+
+    const loggedUser = localStorage.getItem("username");
+    const allReservations = JSON.parse(localStorage.getItem("reservations")) || [];
+    const userReservations = allReservations.filter(r => r.username === loggedUser && r.status === "rented");
+    const section = document.getElementById("returnSection");
+
+    // --- Check Login Status ---
+    if (!loggedUser) {
+      section.innerHTML += "<p>❌ Please log in to view your rentals.</p>";
+    } 
+    else if (userReservations.length === 0) {
+      section.innerHTML += "<p>You currently have no active rentals.</p>";
+    } 
+    else {
+      userReservations.forEach(r => {
+        const car = cars.find(c => c.id === r.carId);
+        const div = document.createElement("div");
+        div.classList.add("car");
+        div.innerHTML = `
+          <img src="${car.img}" width="250">
+          <h3>${car.name}</h3>
+          <p>Rental Period: ${r.startDate} → ${r.endDate}</p>
+          <button onclick="returnCar(${r.id})">Return Car</button>
+        `;
+        section.appendChild(div);
+      });
+    }
+
+    // --- Return Function ---
+    function returnCar(id) {
+      const all = JSON.parse(localStorage.getItem("reservations")) || [];
+      const found = all.find(r => r.id === id && r.username === loggedUser);
+
+      if (found) {
+        found.status = "returned";
+        localStorage.setItem("reservations", JSON.stringify(all));
+        alert(`✅ You successfully returned ${cars.find(c => c.id === found.carId).name}!`);
+        location.reload();
+      }
+    }
+
+
+
+    const completed = allReservations.filter(r => r.username === loggedUser && r.status === "completed");
+if (completed.length > 0) {
+  section.innerHTML += "<h3>Completed Rentals</h3>";
+  completed.forEach(r => {
+    const car = cars.find(c => c.id === r.carId);
+    const div = document.createElement("div");
+    div.classList.add("car");
+    div.innerHTML = `
+      <img src="${car.img}" width="250">
+      <h3>${car.name}</h3>
+      <p>Final Bill: $${r.finalBill}</p>
+      <p>Status: ${r.damage ? "Damaged" : "No Damage"}</p>
+    `;
+    section.appendChild(div);
+  });
+}
+
+  </script>
+</body>
+</html>
